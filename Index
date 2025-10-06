@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Guide: Building a Perplexity-Style AI Search Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --main-color: #ffffff;
+            --text-color: #212529;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --accent-color: #17a2b8;
+            --code-bg: #f1f3f5;
+            --code-header: #dee2e6;
+            --terminal-bg: #212529;
+            --terminal-text: #e9ecef;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --warning-bg: #fff3cd;
+            --warning-border: #ffeeba;
+            --warning-text: #856404;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--main-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 10px 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        main {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        p, li {
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+        
+        strong {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-header {
+            background-color: var(--code-header);
+            padding: 10px 15px;
+            font-family: 'Source Code Pro', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.95rem;
+        }
+
+        code {
+           background-color: #e9ecef;
+           padding: 2px 6px;
+           border-radius: 4px;
+           font-family: 'Source Code Pro', monospace;
+        }
+        
+        .terminal {
+            background-color: var(--terminal-bg);
+            color: var(--terminal-text);
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 20px;
+            font-family: 'Source Code Pro', monospace;
+        }
+        
+        .terminal pre {
+            padding: 0;
+        }
+
+        .warning-box {
+            background-color: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .icon {
+            flex-shrink: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            background-color: #f1f3f5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Building a Perplexity-Style AI Search Engine</h1>
+        <p>Version 1.0 | A Complete Step-by-Step Tutorial</p>
+    </header>
+
+    <main>
+        <!-- Introduction Section -->
+        <section id="introduction">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Introduction: What You Are Building
+            </h2>
+            <p>This document will guide you through creating a fully functional prototype of an AI "Answer Engine." Unlike a traditional search engine that gives you a list of links, this application will take your question, search the web in real-time, read the most relevant sources, and generate a direct, summarized answer using a Large Language Model (LLM) running on your own computer.</p>
+            <h3>Core Technology: Retrieval-Augmented Generation (RAG)</h3>
+            <p>This approach ensures answers are up-to-date and reduces the chance of the AI making things up ("hallucinating"). The process is:</p>
+            <ul>
+                <li><strong>You ask a question:</strong> "What are the benefits of a Mediterranean diet?"</li>
+                <li><strong>The system searches:</strong> It finds top articles from health websites.</li>
+                <li><strong>The system reads:</strong> It scrapes the text content from these articles.</li>
+                <li><strong>The system answers:</strong> An AI model reads the scraped text and provides a summarized answer, complete with the source links it used.</li>
+            </ul>
+        </section>
+
+        <!-- Part 1: Setup -->
+        <section id="part1">
+            <h2>
+                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                Part 1: Setting Up Your Workspace
+            </h2>
+            <p>Let's prepare your computer for the project.</p>
+            
+            <h3>Step 1.1: Create the Project Folder Structure</h3>
+            <p>First, we need to create the folders that will hold our code. Open your terminal or command prompt and run these commands one by one:</p>
+            <div class="code-block">
+                <div class="code-header">Bash Terminal</div>
+                <pre><code>mkdir ai_search_engine
+cd ai_search_engine
+mkdir templates</code></pre>
+            </div>
+            <p>This creates a main folder <code>ai_search_engine</code>, moves you into it, and creates a <code>templates</code> folder inside for our HTML file.</p>
+            
+            <h3>Step 1.2: Initialize and Activate a Python Virtual Environment</h3>
+            <p>A virtual environment is a private sandbox for your project's Python packages. In your terminal, run:</p>
+            <div class="code-block">
+                <div class="code-header">Bash Terminal</div>
+                <pre><code>python -m venv venv</code></pre>
+            </div>
+            <p>Now, activate the environment. The command is different for each OS:</p>
+            <ul>
+                <li><strong>On macOS or Linux:</strong> <code>source venv/bin/activate</code></li>
+                <li><strong>On Windows:</strong> <code>venv\Scripts\activate</code></li>
+            </ul>
+             <div class="terminal">
+                <pre>You will know it's working when you see (venv) at the beginning of your terminal prompt.
+(venv) > </pre>
+            </div>
+            
+            <h3>Step 1.3: Install the Necessary Python Libraries</h3>
+            <p>With your environment active, install all the required packages using <code>pip</code>:</p>
+            <div class="code-block">
+                <div class="code-header">Bash Terminal</div>
+                <pre><code>pip install flask requests beautifulsoup4 ollama</code></pre>
+            </div>
+        </section>
+
+        <!-- Part 2: AI Engine -->
+        <section id="part2">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M13 9a1 1 0 0 1 1-1h.01a1 1 0 0 1 1 1v.01a1 1 0 0 1-1 1h-.01a1 1 0 0 1-1-1V9zm-5 6a1 1 0 0 1 1-1h.01a1 1 0 0 1 1 1v.01a1 1 0 0 1-1 1h-.01a1 1 0 0 1-1-1v-.01z"></path><path d="m3 14 3-3 4 4 5-5 3 3"></path></svg>
+                Part 2: The AI Engine (LLM Setup)
+            </h2>
+            <p>We will use <strong>Ollama</strong> to run a powerful open-source model locally and for free.</p>
+            
+            <h3>Step 2.1: Download and Run Ollama</h3>
+            <p>Go to the official website: <a href="https://ollama.com/" target="_blank">https://ollama.com/</a>, download the application, and launch it. It will run as a background service.</p>
+            
+            <h3>Step 2.2: Download the AI Model</h3>
+            <p>We'll use Llama 3 (8 Billion parameters). Open a new terminal window and run:</p>
+            <div class="code-block">
+                <div class="code-header">Bash Terminal</div>
+                <pre><code>ollama pull llama3:8b</code></pre>
+            </div>
+            <div class="terminal">
+                <pre>
+> ollama pull llama3:8b
+pulling manifest 
+pulling 2e36121c5c0c  100% |████████████████| 4.7 GB / 4.7 GB 
+...
+success 
+                </pre>
+            </div>
+        </section>
+
+        <!-- Part 3: Backend Code -->
+        <section id="part3">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                Part 3: The Information Retriever (Backend Code)
+            </h2>
+            
+            <h3>Step 3.1: Get a Free Search API Key</h3>
+            <p>The Brave Search API provides a generous free tier perfect for this prototype. Go to <a href="https://brave.com/search/api/" target="_blank">https://brave.com/search/api/</a> to sign up and get your free API key.</p>
+            
+            <div class="warning-box">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <div><strong>Important:</strong> You must replace the placeholder API key in the next step with the real key you receive.</div>
+            </div>
+
+            <h3>Step 3.2: Create the <code>search_fetcher.py</code> File</h3>
+            <div class="code-block">
+                <div class="code-header">📂 ai_search_engine/search_fetcher.py</div>
+                <pre><code>import requests
+
+BRAVE_API_KEY = 'YOUR_BRAVE_API_KEY' # ❗️ Paste your key here!
+HEADERS = {'Accept': 'application/json', 'X-Subscription-Token': BRAVE_API_KEY}
+
+def get_search_results(query: str, count: int = 5) -> list:
+    url = f"https://api.search.brave.com/res/v1/web/search?q={query}&count={count}"
+    print(f"INFO: Fetching results from Brave API for query: '{query}'")
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        results = data.get('web', {}).get('results', [])
+        return [{'url': r.get('url'), 'title': r.get('title')} for r in results]
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR: Could not fetch search results: {e}")
+        return []</code></pre>
+            </div>
+
+            <h3>Step 3.3: Create the <code>content_scraper.py</code> File</h3>
+            <div class="code-block">
+                <div class="code-header">📂 ai_search_engine/content_scraper.py</div>
+                <pre><code>import requests
+from bs4 import BeautifulSoup
+
+def scrape_website_content(url: str) -> str | None:
+    print(f"INFO: Scraping content from URL: {url}")
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        response = requests.get(url, timeout=10, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+        for element in soup(['script', 'style', 'nav', 'footer', 'header', 'aside']):
+            element.decompose()
+        text = soup.get_text(separator=' ', strip=True)
+        return text
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR: Could not scrape {url}: {e}")
+        return None</code></pre>
+            </div>
+
+            <h3>Step 3.4: Create the Main <code>app.py</code> Backend File</h3>
+            <div class="code-block">
+                <div class="code-header">📂 ai_search_engine/app.py</div>
+                <pre><code>from flask import Flask, request, jsonify, render_template
+import ollama
+from search_fetcher import get_search_results
+from content_scraper import scrape_website_content
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/search', methods=['POST'])
+def search():
+    query = request.json.get('query')
+    if not query:
+        return jsonify({'error': 'Query is required.'}), 400
+
+    # STEP 1: RETRIEVE
+    search_results = get_search_results(query)
+    if not search_results:
+        return jsonify({'answer': "Sorry, I couldn't find any information online.", 'sources': []})
+
+    # STEP 2: AUGMENT
+    context = ""
+    sources = []
+    for result in search_results:
+        content = scrape_website_content(result['url'])
+        if content:
+            context += f"Source URL: {result['url']}\\nTitle: {result['title']}\\nContent:\\n{content}\\n\\n---\\n\\n"
+            sources.append(result)
+
+    if not context:
+        return jsonify({'answer': "Sorry, I was unable to load content from the search results.", 'sources': []})
+
+    # STEP 3: GENERATE
+    try:
+        prompt = f"""
+        Based *only* on the context provided below, provide a detailed and comprehensive answer to the user's question.
+        Do not use any of your own knowledge. At the end of your answer, do not add any extra commentary.
+
+        CONTEXT:
+        {context}
+
+        QUESTION:
+        {query}
+
+        ANSWER:
+        """
+        response = ollama.chat(
+            model='llama3:8b',
+            messages=[{'role': 'user', 'content': prompt}],
+        )
+        answer = response['message']['content']
+        return jsonify({'answer': answer, 'sources': sources})
+    except Exception as e:
+        print(f"ERROR: Could not communicate with Ollama: {e}")
+        return jsonify({'error': 'Failed to generate an answer from the AI model.'}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5001)</code></pre>
+            </div>
+        </section>
+
+        <!-- Part 4: Frontend -->
+        <section id="part4">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                Part 4: The User Interface (Frontend Code)
+            </h2>
+            <p>Create a file named <code>index.html</code> <strong>inside the <code>templates</code> folder</strong>. This is very important, as Flask looks for HTML files here.</p>
+            <div class="code-block">
+                <div class="code-header">📂 ai_search_engine/templates/index.html</div>
+                <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Local AI Search Engine&lt;/title&gt;
+    &lt;style&gt;
+        body { background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .container { max-width: 800px; width: 100%; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        h1 { color: #212529; text-align: center; margin-bottom: 30px; }
+        .search-area { display: flex; gap: 10px; margin-bottom: 30px; }
+        #searchInput { flex-grow: 1; padding: 15px; font-size: 1rem; border: 1px solid #ced4da; border-radius: 8px; }
+        #searchButton { padding: 15px 25px; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; }
+        #searchButton:hover { background-color: #0056b3; }
+        #searchButton:disabled { background-color: #6c757d; cursor: not-allowed; }
+        .loader { text-align: center; display: none; padding: 20px; color: #495057; }
+        #results h3 { color: #343a40; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; margin-top: 30px; }
+        #answer { white-space: pre-wrap; line-height: 1.7; color: #495057; }
+        .sources-list a { display: block; text-decoration: none; color: #0056b3; margin-top: 10px; padding: 5px; border-radius: 4px; transition: background-color 0.2s; }
+        .sources-list a:hover { background-color: #eef5ff; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;Local AI Search Engine&lt;/h1&gt;
+        &lt;div class="search-area"&gt;
+            &lt;input type="text" id="searchInput" placeholder="Ask a question..." autofocus&gt;
+            &lt;button id="searchButton"&gt;Search&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="loader" id="loader"&gt;🔄 Thinking... This may take a moment.&lt;/div&gt;
+        &lt;div id="results"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultsDiv = document.getElementById('results');
+        const loader = document.getElementById('loader');
+
+        const performSearch = async () => {
+            const query = searchInput.value;
+            if (!query.trim()) return;
+            searchButton.disabled = true;
+            loader.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'The server returned an error.');
+                displayResults(data);
+            } catch (error) {
+                resultsDiv.innerHTML = `&lt;p style="color:red;font-weight:bold;"&gt;Error: ${error.message}&lt;/p&gt;`;
+            } finally {
+                searchButton.disabled = false;
+                loader.style.display = 'none';
+            }
+        };
+
+        const displayResults = (data) => {
+            let html = `&lt;h3&gt;Answer&lt;/h3&gt;&lt;p id="answer"&gt;${data.answer}&lt;/p&gt;`;
+            if (data.sources && data.sources.length > 0) {
+                html += '&lt;h3&gt;Sources&lt;/h3&gt;&lt;div class="sources-list"&gt;';
+                data.sources.forEach(source => {
+                    html += `&lt;a href="${source.url}" target="_blank" rel="noopener noreferrer"&gt;${source.title || source.url}&lt;/a&gt;`;
+                });
+                html += '&lt;/div&gt;';
+            }
+            resultsDiv.innerHTML = html;
+        };
+
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') performSearch();
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- Part 5: Running -->
+        <section id="part5">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Part 5: Running the Application
+            </h2>
+            <p>You've set up the environment and written all the code. It's time to bring your AI search engine to life.</p>
+            
+            <h3>Step 5.1: Final Checklist</h3>
+            <ul>
+                <li>✅ <strong>Ollama is Running:</strong> Ensure the Ollama application is open.</li>
+                <li>✅ <strong>Virtual Environment is Active:</strong> Your terminal prompt should start with <code>(venv)</code>.</li>
+                <li>✅ <strong>API Key is Set:</strong> Double-check <code>search_fetcher.py</code>.</li>
+                <li>✅ <strong>Files are in the Right Place:</strong> Ensure <code>index.html</code> is in the <code>templates</code> folder.</li>
+            </ul>
+
+            <h3>Step 5.2: Start the Web Server</h3>
+            <p>In your terminal, run the main <code>app.py</code> file:</p>
+            <div class="code-block">
+                <div class="code-header">Bash Terminal</div>
+                <pre><code>python app.py</code></pre>
+            </div>
+            <div class="terminal">
+                <pre>
+(venv) > python app.py
+ * Serving Flask app 'app'
+ * Debug mode: on
+ * Running on http://127.0.0.1:5001
+Press CTRL+C to quit
+                </pre>
+            </div>
+
+            <h3>Step 5.3: Use Your Application!</h3>
+            <p>Open your web browser and go to the following address:</p>
+            <p style="text-align:center; font-size: 1.2rem; font-weight: 600;"><a href="http://127.0.0.1:5001" target="_blank">http://127.0.0.1:5001</a></p>
+            <p>You should see the interface you created. Type a question, press Enter, and watch your local AI search engine work!</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>End of Guide | Happy Building!</p>
+    </footer>
+</div>
+
+</body>
+</html>
